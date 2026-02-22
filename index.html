@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Exodus 40 Lite</title>
-  <meta name="description" content="Lenten rule of life tracker for the Good Wine Group">
+  <meta name="description" content="Lenten rule of life tracker for the St. Agatha St. James Good Wine Group">
   <meta name="theme-color" content="#2D1B4E">
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
@@ -24,17 +24,18 @@
   <header>
     <div class="header-top">
       <h1>Exodus 40 Lite</h1>
-      <p class="subtitle">Good Wine Group &middot; Lent 2026</p>
+      <p class="subtitle">St. Agatha St. James &middot; Lent</p>
     </div>
     <nav class="date-nav">
       <button id="prev-day" aria-label="Previous day">&lsaquo;</button>
       <div class="date-center">
         <span id="current-date"></span>
         <span id="lent-day"></span>
+        <span id="today-indicator" class="today-indicator" hidden>Today</span>
       </div>
       <button id="next-day" aria-label="Next day">&rsaquo;</button>
     </nav>
-    <button id="today-btn" hidden>Today</button>
+    <button id="today-btn" hidden>Go to Today</button>
     <div class="progress">
       <div class="progress-bar">
         <div id="progress-fill" class="progress-fill"></div>

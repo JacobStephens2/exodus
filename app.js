@@ -87,8 +87,7 @@
   var currentDate;
 
   function todayStr() {
-    var d = new Date();
-    return toDateStr(d);
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
   }
 
   function toDateStr(d) {
@@ -380,10 +379,14 @@
     var prevBtn = document.getElementById('prev-day');
     var nextBtn = document.getElementById('next-day');
 
+    var isToday = (currentDate === todayStr());
+
     dateEl.textContent = formatDate(currentDate);
     dayEl.textContent = 'Day ' + lentDayNumber(currentDate) + ' of ' + totalLentDays();
 
-    todayBtn.hidden = (currentDate === todayStr());
+    var todayIndicator = document.getElementById('today-indicator');
+    todayIndicator.hidden = !isToday;
+    todayBtn.hidden = isToday;
     prevBtn.disabled = (currentDate <= LENT_START);
     nextBtn.disabled = (currentDate >= LENT_END);
 

@@ -89,3 +89,6 @@ To create an account, the user must enter an email address and password. To logi
 
 # Attribution
 This app is a modification of the Exodus 90 rule (https://exodus90.com/), so Exodus 90 should be attributed on the app.
+
+# Today Indicator
+Only the day which matches the date of Eastern Standard Time should be marked as Today.
