@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "page.stephens.exodus40lite",
+    "sha256_cert_fingerprints": [
+      "79:58:34:2C:63:24:5F:7E:B2:1C:62:02:75:67:C5:BF:1B:A6:09:67:EC:0B:52:E7:2E:F5:96:ED:23:C2:08:E9"
+    ]
+  }
+}]
