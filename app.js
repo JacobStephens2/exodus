@@ -6,6 +6,7 @@
   var TIMESTAMPS_KEY = 'exodus40lite-timestamps';
   var TOKEN_KEY = 'exodus40lite-token';
   var USERNAME_KEY = 'exodus40lite-username';
+  var PREFS_KEY = 'exodus40lite-prefs';
   var API_BASE = './api';
   var LENT_START = '2026-02-18';
   var LENT_END = '2026-04-04';
@@ -77,7 +78,8 @@
         { id: 'asceticism-snacking', label: 'No snacking between meals', freq: 'daily' },
         { id: 'asceticism-desserts', label: 'No desserts or sweets', freq: 'daily' },
         { id: 'asceticism-music', label: 'Only music that lifts the soul to God', freq: 'daily' },
-        { id: 'asceticism-purchases', label: 'No unnecessary purchases', freq: 'daily' }
+        { id: 'asceticism-purchases', label: 'No unnecessary purchases', freq: 'daily' },
+        { id: 'asceticism-coldshower', label: 'Take a cold shower', freq: 'daily', optional: true }
       ]
     }
   ];
@@ -140,9 +142,27 @@
     return dates;
   }
 
+  // ========== PREFERENCES ==========
+
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem(PREFS_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+
+  function savePrefs(prefs) {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  }
+
+  function isItemEnabled(itemId, item) {
+    var prefs = loadPrefs();
+    if (prefs.hasOwnProperty(itemId)) return prefs[itemId];
+    return !item.optional;
+  }
+
   // ========== ITEM VISIBILITY ==========
 
   function shouldShow(item, dateStr) {
+    if (!isItemEnabled(item.id, item)) return false;
     switch (item.freq) {
       case 'daily':
         return true;
@@ -617,6 +637,7 @@
           : "Don\u2019t have an account? Register";
         passwordInput.setAttribute('autocomplete', isRegister ? 'new-password' : 'current-password');
         errorMsg.hidden = true;
+        if (forgotLink) forgotLink.style.display = isRegister ? 'none' : '';
       });
 
       function doSubmit() {
@@ -690,6 +711,97 @@
         });
       }
 
+      // Forgot password link
+      var forgotLink = el('button', {
+        className: 'account-switch',
+        textContent: 'Forgot password?',
+        type: 'button'
+      });
+      var forgotContainer = el('div', { className: 'forgot-container', hidden: true });
+      var forgotError = el('div', { className: 'account-error', hidden: true });
+      var forgotSuccess = el('div', { className: 'account-success', hidden: true });
+      var forgotEmail = el('input', {
+        type: 'email',
+        className: 'account-input',
+        placeholder: 'Email address',
+        autocomplete: 'email'
+      });
+      var forgotBtn = el('button', {
+        className: 'account-btn',
+        textContent: 'Send reset link',
+        type: 'button'
+      });
+      var forgotBack = el('button', {
+        className: 'account-switch',
+        textContent: 'Back to sign in',
+        type: 'button'
+      });
+
+      forgotLink.addEventListener('click', function () {
+        forgotContainer.hidden = false;
+        errorMsg.hidden = true;
+        usernameInput.style.display = 'none';
+        passwordInput.style.display = 'none';
+        submitBtn.style.display = 'none';
+        switchLink.style.display = 'none';
+        forgotLink.style.display = 'none';
+      });
+
+      forgotBack.addEventListener('click', function () {
+        forgotContainer.hidden = true;
+        forgotError.hidden = true;
+        forgotSuccess.hidden = true;
+        usernameInput.style.display = '';
+        passwordInput.style.display = '';
+        submitBtn.style.display = '';
+        switchLink.style.display = '';
+        forgotLink.style.display = '';
+      });
+
+      function doForgot() {
+        var email = forgotEmail.value.trim();
+        if (!email || email.indexOf('@') === -1) {
+          forgotError.textContent = 'Please enter a valid email address.';
+          forgotError.hidden = false;
+          forgotSuccess.hidden = true;
+          return;
+        }
+        forgotBtn.disabled = true;
+        forgotBtn.textContent = 'Sending\u2026';
+        forgotError.hidden = true;
+        forgotSuccess.hidden = true;
+
+        fetch(API_BASE + '/forgot-password.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: email })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          forgotSuccess.textContent = 'If an account exists with that email, a reset link has been sent. Check your inbox.';
+          forgotSuccess.hidden = false;
+          forgotBtn.disabled = false;
+          forgotBtn.textContent = 'Send reset link';
+        })
+        .catch(function () {
+          forgotError.textContent = 'Connection failed. Try again.';
+          forgotError.hidden = false;
+          forgotBtn.disabled = false;
+          forgotBtn.textContent = 'Send reset link';
+        });
+      }
+
+      forgotBtn.addEventListener('click', doForgot);
+      forgotEmail.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doForgot();
+      });
+
+      forgotContainer.appendChild(forgotError);
+      forgotContainer.appendChild(forgotSuccess);
+      forgotContainer.appendChild(forgotEmail);
+      forgotContainer.appendChild(forgotBtn);
+      forgotContainer.appendChild(forgotBack);
+
       submitBtn.addEventListener('click', doSubmit);
       passwordInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') doSubmit();
@@ -702,11 +814,189 @@
       formContainer.appendChild(usernameInput);
       formContainer.appendChild(passwordInput);
       formContainer.appendChild(submitBtn);
+      formContainer.appendChild(forgotLink);
       formContainer.appendChild(switchLink);
+      formContainer.appendChild(forgotContainer);
 
       container.appendChild(toggleLink);
       container.appendChild(formContainer);
     }
+  }
+
+  // ========== RESET PASSWORD UI ==========
+
+  function checkResetToken() {
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get('reset');
+    if (!token) return;
+
+    // Clean the URL
+    history.replaceState(null, '', window.location.pathname);
+
+    // Show the reset form in the account section
+    var container = document.getElementById('account-section');
+    container.innerHTML = '';
+
+    var card = el('div', { className: 'account-form-container' });
+    var heading = el('div', { className: 'reset-heading', textContent: 'Set a new password' });
+    var errorMsg = el('div', { className: 'account-error', hidden: true });
+    var successMsg = el('div', { className: 'account-success', hidden: true });
+    var passwordInput = el('input', {
+      type: 'password',
+      className: 'account-input',
+      placeholder: 'New password (6+ characters)',
+      autocomplete: 'new-password'
+    });
+    var confirmInput = el('input', {
+      type: 'password',
+      className: 'account-input',
+      placeholder: 'Confirm new password',
+      autocomplete: 'new-password'
+    });
+    var submitBtn = el('button', {
+      className: 'account-btn',
+      textContent: 'Reset password',
+      type: 'button'
+    });
+
+    function doReset() {
+      var password = passwordInput.value;
+      var confirm = confirmInput.value;
+      if (password.length < 6) {
+        errorMsg.textContent = 'Password must be at least 6 characters.';
+        errorMsg.hidden = false;
+        return;
+      }
+      if (password !== confirm) {
+        errorMsg.textContent = 'Passwords do not match.';
+        errorMsg.hidden = false;
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Resetting\u2026';
+      errorMsg.hidden = true;
+
+      fetch(API_BASE + '/reset-password.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token, password: password })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (result) {
+        if (result.error) {
+          errorMsg.textContent = result.error;
+          errorMsg.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Reset password';
+          return;
+        }
+        successMsg.textContent = 'Password reset successfully. You can now sign in.';
+        successMsg.hidden = false;
+        passwordInput.style.display = 'none';
+        confirmInput.style.display = 'none';
+        submitBtn.style.display = 'none';
+
+        // Show a link back to sign-in
+        var signInBtn = el('button', {
+          className: 'account-btn',
+          textContent: 'Sign in',
+          type: 'button'
+        });
+        signInBtn.addEventListener('click', function () {
+          renderAccountUI();
+          // Auto-open the sign-in form
+          var toggle = container.querySelector('.account-toggle');
+          if (toggle) toggle.click();
+        });
+        card.appendChild(signInBtn);
+      })
+      .catch(function () {
+        errorMsg.textContent = 'Connection failed. Try again.';
+        errorMsg.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Reset password';
+      });
+    }
+
+    submitBtn.addEventListener('click', doReset);
+    confirmInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doReset();
+    });
+    passwordInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') confirmInput.focus();
+    });
+
+    card.appendChild(heading);
+    card.appendChild(errorMsg);
+    card.appendChild(successMsg);
+    card.appendChild(passwordInput);
+    card.appendChild(confirmInput);
+    card.appendChild(submitBtn);
+    container.appendChild(card);
+  }
+
+  // ========== SETTINGS UI ==========
+
+  function renderSettingsUI() {
+    var container = document.getElementById('settings-section');
+    container.innerHTML = '';
+
+    var toggleLink = el('button', {
+      className: 'settings-toggle',
+      textContent: 'Customize your disciplines',
+      type: 'button'
+    });
+    var panel = el('div', { className: 'settings-panel', hidden: true });
+
+    toggleLink.addEventListener('click', function () {
+      panel.hidden = !panel.hidden;
+      toggleLink.textContent = panel.hidden
+        ? 'Customize your disciplines'
+        : 'Done customizing';
+    });
+
+    var prefs = loadPrefs();
+
+    for (var c = 0; c < CATEGORIES.length; c++) {
+      var cat = CATEGORIES[c];
+      var catSection = el('div', { className: 'settings-category' });
+      catSection.appendChild(el('div', { className: 'settings-category-header' }, [
+        el('span', { textContent: cat.icon + ' ' }),
+        el('strong', { textContent: cat.name })
+      ]));
+
+      for (var j = 0; j < cat.items.length; j++) {
+        var item = cat.items[j];
+        var enabled = prefs.hasOwnProperty(item.id) ? prefs[item.id] : !item.optional;
+
+        var row = el('label', { className: 'settings-item' });
+        var toggle = el('input', { type: 'checkbox' });
+        toggle.checked = enabled;
+
+        (function (itemId) {
+          toggle.addEventListener('change', function () {
+            var p = loadPrefs();
+            p[itemId] = this.checked;
+            savePrefs(p);
+            render();
+          });
+        })(item.id);
+
+        var labelSpan = el('span', { className: 'settings-item-label', textContent: item.label });
+        if (item.optional) {
+          labelSpan.appendChild(el('span', { className: 'settings-optional-badge', textContent: ' optional' }));
+        }
+
+        row.appendChild(toggle);
+        row.appendChild(labelSpan);
+        catSection.appendChild(row);
+      }
+
+      panel.appendChild(catSection);
+    }
+
+    container.appendChild(toggleLink);
+    container.appendChild(panel);
   }
 
   // ========== EVENT HANDLERS ==========
@@ -749,7 +1039,9 @@
 
   currentDate = clampToLent(todayStr());
   render();
+  renderSettingsUI();
   renderAccountUI();
+  checkResetToken();
 
   if (isLoggedIn()) {
     syncFromServer().then(function () {

@@ -1,5 +1,6 @@
 api/private/secrets.php
 api/private/setup-credentials.sql
+vendor/
 android-twa/keystore.properties
 android-twa/*.jks
 android-twa/*.apk

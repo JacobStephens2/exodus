@@ -25,3 +25,11 @@ CREATE TABLE IF NOT EXISTS user_data (
     PRIMARY KEY (user_id, date_str),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    token CHAR(64) PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
