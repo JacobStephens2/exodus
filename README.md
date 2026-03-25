@@ -1,5 +1,7 @@
 # Exodus 40 Lite
 
+Live at https://exodus.stephens.page
+
 A Progressive Web App for a small men's group at St. Agatha St. James parish (West Philadelphia) to track their Lenten rule of life. The rule is adapted from [Exodus 90](https://exodus90.com), condensed to the 47 days of Lent 2026 (Ash Wednesday through Holy Saturday).
 
 ## Features
