@@ -484,6 +484,14 @@
       var newState = toggleItem(currentDate, item.id);
       row.classList.toggle('checked', newState);
       recalcProgress();
+      if (item.freq === 'weekly') {
+        var count = weeklyCount(item.id, currentDate);
+        var goal = item.weeklyGoal || 1;
+        badge.textContent = item.weeklyGoal
+          ? count + '/' + goal + ' this week'
+          : (count > 0 ? '\u2713 this week' : 'this week');
+        badge.className = 'weekly-badge' + (count >= goal ? ' complete' : '');
+      }
     });
 
     var textDiv = el('div', { className: 'item-text' });
