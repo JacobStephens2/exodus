@@ -7,6 +7,7 @@
   var TOKEN_KEY = 'exodus40lite-token';
   var USERNAME_KEY = 'exodus40lite-username';
   var PREFS_KEY = 'exodus40lite-prefs';
+  var PREFS_UPDATED_KEY = 'exodus40lite-prefs-updated-at';
   var API_BASE = './api';
   var LENT_START = '2026-02-18';
   var LENT_END = '2026-04-04';
@@ -149,8 +150,25 @@
     catch (e) { return {}; }
   }
 
-  function savePrefs(prefs) {
+  function loadPrefsUpdatedAt() {
+    return parseInt(localStorage.getItem(PREFS_UPDATED_KEY) || '0', 10) || 0;
+  }
+
+  function savePrefsUpdatedAt(updatedAt) {
+    localStorage.setItem(PREFS_UPDATED_KEY, String(updatedAt || 0));
+  }
+
+  function savePrefs(prefs, updatedAt) {
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    if (typeof updatedAt === 'number') {
+      savePrefsUpdatedAt(updatedAt);
+    }
+  }
+
+  function setPrefsAndSync(prefs) {
+    var updatedAt = Date.now();
+    savePrefs(prefs, updatedAt);
+    syncPrefsToServer(updatedAt);
   }
 
   function isItemEnabled(itemId, item) {
@@ -312,6 +330,42 @@
     });
   }
 
+  function syncPrefsToServer(updatedAt) {
+    if (!isLoggedIn()) return;
+    apiRequest('prefs.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        prefs: loadPrefs(),
+        updated_at: updatedAt || loadPrefsUpdatedAt()
+      })
+    });
+  }
+
+  function syncPrefsFromServer() {
+    if (!isLoggedIn()) return Promise.resolve();
+    return apiRequest('prefs.php', { method: 'GET' })
+      .then(function (result) {
+        if (!result) return;
+        var localPrefs = loadPrefs();
+        var localUpdated = loadPrefsUpdatedAt();
+        var serverUpdated = typeof result.updated_at === 'number' ? result.updated_at : 0;
+        var serverPrefs = (result.prefs && typeof result.prefs === 'object') ? result.prefs : {};
+
+        if (!localUpdated && Object.keys(localPrefs).length > 0 && !serverUpdated) {
+          localUpdated = Date.now();
+          savePrefs(localPrefs, localUpdated);
+        }
+
+        if (serverUpdated > localUpdated) {
+          savePrefs(serverPrefs, serverUpdated);
+          render();
+          renderSettingsUI();
+        } else if (localUpdated > serverUpdated) {
+          syncPrefsToServer(localUpdated);
+        }
+      });
+  }
+
   function syncFromServer() {
     if (!isLoggedIn()) return Promise.resolve();
     return apiRequest('data.php', { method: 'GET' })
@@ -364,6 +418,9 @@
         for (var p = 0; p < pushDates.length; p++) {
           syncDateToServer(pushDates[p], localTs[pushDates[p]]);
         }
+      })
+      .then(function () {
+        return syncPrefsFromServer();
       });
   }
 
@@ -451,14 +508,6 @@
       main.appendChild(section);
     }
 
-    main.appendChild(el('section', { className: 'day-intro' }, [
-      el('p', { className: 'day-intro-label', textContent: 'Editorial Ruleboard' }),
-      el('p', {
-        className: 'day-intro-copy',
-        textContent: 'Track the day with deliberate attention. Weekly disciplines carry their own cadence, and notes remain attached to this date.'
-      })
-    ]));
-
     updateProgress(checkedItems, totalItems);
 
     if (totalItems > 0 && checkedItems === totalItems) {
@@ -484,6 +533,14 @@
     notesSection.appendChild(notesLabel);
     notesSection.appendChild(textarea);
     main.appendChild(notesSection);
+
+    main.appendChild(el('section', { className: 'day-intro' }, [
+      el('p', { className: 'day-intro-label', textContent: 'Editorial Ruleboard' }),
+      el('p', {
+        className: 'day-intro-copy',
+        textContent: 'Track the day with deliberate attention. Weekly disciplines carry their own cadence, and notes remain attached to this date.'
+      })
+    ]));
   }
 
   function buildItemRow(item, checked) {
@@ -508,8 +565,9 @@
     var textDiv = el('div', { className: 'item-text' });
     textDiv.appendChild(el('span', { className: 'item-label', textContent: item.label }));
 
-    if (item.hint) {
-      textDiv.appendChild(el('span', { className: 'item-hint', textContent: item.hint }));
+    var hintText = item.hint || defaultItemHint(item);
+    if (hintText) {
+      textDiv.appendChild(el('span', { className: 'item-hint', textContent: hintText }));
     }
 
     if (item.freq === 'weekly') {
@@ -560,8 +618,23 @@
     var fill = document.getElementById('progress-fill');
     var text = document.getElementById('progress-text');
     var pct = total > 0 ? (checked / total) * 100 : 0;
-    fill.style.width = pct + '%';
-    text.textContent = total > 0 ? checked + ' of ' + total + ' kept' : 'No disciplines';
+    fill.style.setProperty('--progress', pct + '%');
+    text.textContent = checked + ' / ' + total;
+  }
+
+  function defaultItemHint(item) {
+    switch (item.freq) {
+      case 'weekly':
+        return item.weeklyGoal ? item.weeklyGoal + ' times this week' : 'Weekly discipline';
+      case 'sunday':
+        return 'Sunday discipline';
+      case 'fasting':
+        return 'Friday fast';
+      case 'abstinence':
+        return 'Friday abstinence';
+      default:
+        return 'Daily discipline';
+    }
   }
 
   function recalcProgress() {
@@ -685,8 +758,16 @@
         var body = { username: username, password: password };
 
         if (isRegister) {
+          var prefs = loadPrefs();
+          var prefsUpdatedAt = loadPrefsUpdatedAt();
+          if (Object.keys(prefs).length > 0 && !prefsUpdatedAt) {
+            prefsUpdatedAt = Date.now();
+            savePrefs(prefs, prefsUpdatedAt);
+          }
           body.checklist = loadData();
           body.notes = loadNotes();
+          body.prefs = prefs;
+          body.prefs_updated_at = prefsUpdatedAt;
         }
 
         fetch(API_BASE + '/' + endpoint, {
@@ -710,11 +791,15 @@
             var now = Date.now();
             var data = loadData();
             var notes = loadNotes();
+            var prefs = loadPrefs();
             var allDates = Object.keys(data).concat(Object.keys(notes));
             for (var i = 0; i < allDates.length; i++) {
               if (!ts[allDates[i]]) ts[allDates[i]] = now;
             }
             saveTimestamps(ts);
+            if (Object.keys(prefs).length > 0 && !loadPrefsUpdatedAt()) {
+              savePrefsUpdatedAt(now);
+            }
           }
 
           syncFromServer().then(function () {
@@ -1009,7 +1094,7 @@
           toggle.addEventListener('change', function () {
             var p = loadPrefs();
             p[itemId] = this.checked;
-            savePrefs(p);
+            setPrefsAndSync(p);
             render();
           });
         })(item.id);

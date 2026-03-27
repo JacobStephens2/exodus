@@ -18,6 +18,7 @@ if (strlen($password) < 6) {
 }
 
 $db = getDB();
+ensureUserPrefsTable();
 
 $exists = $db->prepare('SELECT 1 FROM users WHERE username = ?');
 $exists->execute([$username]);
@@ -36,6 +37,8 @@ $now = round(microtime(true) * 1000);
 
 $checklist = $input['checklist'] ?? [];
 $notes = $input['notes'] ?? [];
+$prefs = $input['prefs'] ?? new stdClass();
+$prefsUpdatedAt = (int) ($input['prefs_updated_at'] ?? 0);
 $allDates = array_unique(array_merge(array_keys($checklist), array_keys($notes)));
 
 if (count($allDates) > 0) {
@@ -48,6 +51,14 @@ if (count($allDates) > 0) {
         $note = $notes[$dateStr] ?? '';
         $stmt->execute([$userId, $dateStr, $items, $note, $now]);
     }
+}
+
+$prefsJson = json_encode($prefs);
+if ($prefsJson !== false) {
+    $stmt = $db->prepare(
+        'INSERT INTO user_prefs (user_id, prefs_json, updated_at) VALUES (?, ?, ?)'
+    );
+    $stmt->execute([$userId, $prefsJson, $prefsUpdatedAt]);
 }
 
 jsonResponse(['token' => $token, 'username' => $username]);

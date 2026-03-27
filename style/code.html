@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#ffdf97",
+                        "tertiary": "#2d2930",
+                        "tertiary-container": "#433f46",
+                        "on-secondary-fixed-variant": "#5a4400",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#4e2f7f",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#775a00",
+                        "primary-fixed": "#ecdcff",
+                        "background": "#f9f9f9",
+                        "inverse-surface": "#2f3131",
+                        "on-secondary-fixed": "#251a00",
+                        "on-secondary-container": "#6f5400",
+                        "on-error": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#4a454d",
+                        "surface-container-high": "#e8e8e8",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#be9cf4",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed-dim": "#f3bf2d",
+                        "inverse-primary": "#d5baff",
+                        "secondary-container": "#fcc836",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#6d4ea0",
+                        "surface": "#f9f9f9",
+                        "tertiary-fixed-dim": "#ccc4cd",
+                        "surface-container": "#eeeeee",
+                        "on-tertiary-container": "#b1aab3",
+                        "primary-fixed-dim": "#d5baff",
+                        "surface-container-low": "#f4f3f3",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-background": "#1a1c1c",
+                        "surface-dim": "#dadada",
+                        "primary": "#371567",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#7b7581",
+                        "on-primary-fixed": "#270057",
+                        "surface-bright": "#f9f9f9",
+                        "on-surface-variant": "#4a4550",
+                        "tertiary-fixed": "#e8e0e9",
+                        "outline-variant": "#ccc3d2",
+                        "on-tertiary-fixed": "#1e1a21",
+                        "on-primary-fixed-variant": "#553686"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body selection:bg-secondary/20">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-6 bg-[#f9f9f9] dark:bg-[#1a1c1c] no-border tonal-shift-bg-zinc-100 dark:bg-zinc-900 transition-all duration-500 ease-in-out">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#371567] dark:text-[#9D79D6]">calendar_today</span>
+</div>
+<h1 class="font-['Noto_Serif'] tracking-wide text-zinc-900 dark:text-zinc-100 text-lg">First Week of Lent</h1>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#371567] dark:text-[#9D79D6]">account_circle</span>
+</div>
+</header>
+<main class="pt-28 pb-32 max-w-2xl mx-auto px-6">
+<!-- Hero Section: Date Navigation -->
+<section class="mb-12 text-center">
+<div class="flex items-center justify-center gap-8 mb-4">
+<button class="p-2 hover:bg-surface-container transition-colors rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mb-1">Ash Wednesday</span>
+<h2 class="font-headline text-3xl font-bold tracking-tight text-on-surface">Day 1 of 40</h2>
+</div>
+<button class="p-2 hover:bg-surface-container transition-colors rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Progress Tracker: The Discipline Breath -->
+<section class="mb-16">
+<div class="flex flex-col items-center">
+<div class="relative w-48 h-48 flex items-center justify-center">
+<!-- Subtle progress ring -->
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-surface-container-high" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-width="2"></circle>
+<circle class="text-secondary transition-all duration-1000 ease-out" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" stroke-dasharray="552.92" stroke-dashoffset="414.69" stroke-width="3"></circle>
+</svg>
+<div class="text-center z-10">
+<span class="font-headline text-4xl font-light text-on-surface">4<span class="text-on-surface-variant/40 mx-1">/</span>16</span>
+<p class="font-label text-[11px] uppercase tracking-widest text-on-surface-variant mt-2">Disciplines</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Task List -->
+<section class="space-y-12">
+<!-- Prayer Category -->
+<div>
+<h3 class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mb-6 border-b border-outline-variant/15 pb-2">Interior Life</h3>
+<div class="space-y-4">
+<!-- Task Card -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-lowest rounded-lg transition-all duration-300 hover:bg-surface-container-low">
+<div class="flex flex-col gap-1">
+<span class="font-headline text-lg text-on-surface">Pray for 20 minutes</span>
+<span class="font-label text-xs text-on-surface-variant tracking-wide">Morning Liturgy of the Hours</span>
+</div>
+<button class="w-8 h-8 rounded-full border border-outline-variant group-hover:border-secondary flex items-center justify-center transition-all bg-surface-dim">
+<span class="material-symbols-outlined text-secondary scale-0 group-hover:scale-100 transition-transform text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+</div>
+<div class="group flex items-center justify-between p-6 bg-surface-container-lowest rounded-lg transition-all duration-300 hover:bg-surface-container-low border-l-4 border-secondary/40">
+<div class="flex flex-col gap-1">
+<span class="font-headline text-lg text-on-surface">Read the daily scripture</span>
+<span class="font-label text-xs text-on-surface-variant tracking-wide">Matthew 6:1-6, 16-18</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fasting Category -->
+<div>
+<h3 class="font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mb-6 border-b border-outline-variant/15 pb-2">Physical Discipline</h3>
+<div class="space-y-4">
+<div class="group flex items-center justify-between p-6 bg-surface-container-lowest rounded-lg transition-all duration-300 hover:bg-surface-container-low">
+<div class="flex flex-col gap-1">
+<span class="font-headline text-lg text-on-surface">No sweets</span>
+<span class="font-label text-xs text-on-surface-variant tracking-wide">Fasting from refined sugars</span>
+</div>
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center transition-all bg-surface-dim">
+</button>
+</div>
+<div class="group flex items-center justify-between p-6 bg-surface-container-lowest rounded-lg transition-all duration-300 hover:bg-surface-container-low">
+<div class="flex flex-col gap-1">
+<span class="font-headline text-lg text-on-surface">Exercise for 30 minutes</span>
+<span class="font-label text-xs text-on-surface-variant tracking-wide">Intentional movement</span>
+</div>
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center transition-all bg-surface-dim">
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Card -->
+<div class="relative overflow-hidden rounded-xl bg-tertiary p-8 text-on-tertiary">
+<img class="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity" data-alt="atmospheric candle light in a stone monastic cell with soft morning light filtering through a high window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoxJJWMqw3fEFt6dlHcYYhXS9ndloIXaoQVviyq4H9p4j-pHTLGeJgkcuNpWvfllMjF9Ofj6Lq23eTnBXRekCyOWQk7EMwrIe-HVa3H0dgOUHB2MIWUl3pvxxUprta-NtszwvNWEcQZ9hU_cah4hhGR-yw1Kror_mGhJ4P3GT5hhk4-Y2dUiAC3qoXENnPqxd4IUQGcyBZCnP2NPTvb_MQyUOLiwaUW5iN1Y3WFOIjaY-BiGH8CEahoUWgP9wzX-1ipvMzI9wQ3B6W"/>
+<div class="relative z-10">
+<span class="font-label text-[10px] uppercase tracking-widest opacity-70 mb-2 block">Daily Reflection</span>
+<p class="font-headline text-xl leading-relaxed italic">"Remember that you are dust, and to dust you shall return."</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#ffffff] dark:bg-[#1a1c1c] rounded-t-none shadow-[0_-4px_24px_rgba(26,28,28,0.04)]">
+<!-- Track (Active) -->
+<a class="flex flex-col items-center justify-center text-[#371567] dark:text-[#775a00] scale-105 group transition-transform duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium">Track</span>
+</a>
+<!-- Pray -->
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 group hover:text-[#371567] dark:hover:text-[#775a00] active:scale-95 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">auto_stories</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium">Pray</span>
+</a>
+<!-- Community -->
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 group hover:text-[#371567] dark:hover:text-[#775a00] active:scale-95 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">groups</span>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest font-medium">Community</span>
+</a>
+</nav>
+</body></html>
