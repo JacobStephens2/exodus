@@ -433,7 +433,10 @@
       var section = el('section', { className: 'category' });
       var hdr = el('div', { className: 'category-header' }, [
         el('span', { className: 'category-icon', textContent: cat.icon }),
-        el('h2', { textContent: cat.name })
+        el('div', { className: 'category-heading' }, [
+          el('h2', { textContent: cat.name }),
+          el('span', { className: 'category-meta', textContent: visible.length + ' disciplines' })
+        ])
       ]);
       section.appendChild(hdr);
 
@@ -447,6 +450,14 @@
 
       main.appendChild(section);
     }
+
+    main.appendChild(el('section', { className: 'day-intro' }, [
+      el('p', { className: 'day-intro-label', textContent: 'Editorial Ruleboard' }),
+      el('p', {
+        className: 'day-intro-copy',
+        textContent: 'Track the day with deliberate attention. Weekly disciplines carry their own cadence, and notes remain attached to this date.'
+      })
+    ]));
 
     updateProgress(checkedItems, totalItems);
 
@@ -550,7 +561,7 @@
     var text = document.getElementById('progress-text');
     var pct = total > 0 ? (checked / total) * 100 : 0;
     fill.style.width = pct + '%';
-    text.textContent = total > 0 ? checked + ' / ' + total : '';
+    text.textContent = total > 0 ? checked + ' of ' + total + ' kept' : 'No disciplines';
   }
 
   function recalcProgress() {
@@ -841,12 +852,16 @@
     // Clean the URL
     history.replaceState(null, '', window.location.pathname);
 
-    // Show the reset form in the account section
-    var container = document.getElementById('account-section');
-    container.innerHTML = '';
+    document.body.classList.add('modal-open');
 
-    var card = el('div', { className: 'account-form-container' });
+    var overlay = el('div', { className: 'modal-overlay reset-modal-overlay' });
+    var modal = el('div', { className: 'modal-card account-form-container', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'reset-modal-title' });
+    var modalIntro = el('p', {
+      className: 'modal-kicker',
+      textContent: 'Password Recovery'
+    });
     var heading = el('div', { className: 'reset-heading', textContent: 'Set a new password' });
+    heading.id = 'reset-modal-title';
     var errorMsg = el('div', { className: 'account-error', hidden: true });
     var successMsg = el('div', { className: 'account-success', hidden: true });
     var passwordInput = el('input', {
@@ -866,6 +881,11 @@
       textContent: 'Reset password',
       type: 'button'
     });
+
+    function closeResetModal() {
+      document.body.classList.remove('modal-open');
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }
 
     function doReset() {
       var password = passwordInput.value;
@@ -911,12 +931,13 @@
           type: 'button'
         });
         signInBtn.addEventListener('click', function () {
+          closeResetModal();
           renderAccountUI();
-          // Auto-open the sign-in form
+          var container = document.getElementById('account-section');
           var toggle = container.querySelector('.account-toggle');
           if (toggle) toggle.click();
         });
-        card.appendChild(signInBtn);
+        modal.appendChild(signInBtn);
       })
       .catch(function () {
         errorMsg.textContent = 'Connection failed. Try again.';
@@ -934,13 +955,16 @@
       if (e.key === 'Enter') confirmInput.focus();
     });
 
-    card.appendChild(heading);
-    card.appendChild(errorMsg);
-    card.appendChild(successMsg);
-    card.appendChild(passwordInput);
-    card.appendChild(confirmInput);
-    card.appendChild(submitBtn);
-    container.appendChild(card);
+    modal.appendChild(modalIntro);
+    modal.appendChild(heading);
+    modal.appendChild(errorMsg);
+    modal.appendChild(successMsg);
+    modal.appendChild(passwordInput);
+    modal.appendChild(confirmInput);
+    modal.appendChild(submitBtn);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    passwordInput.focus();
   }
 
   // ========== SETTINGS UI ==========
