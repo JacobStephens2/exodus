@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Exodus 40 Lite",
-  "short_name": "Exodus 40",
-  "description": "Lenten rule of life tracker for the Good Wine Group",
+  "name": "Exodus",
+  "short_name": "Exodus",
+  "description": "Rule of life tracker for the Good Wine Group",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

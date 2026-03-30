@@ -9,8 +9,21 @@
   var PREFS_KEY = 'exodus40lite-prefs';
   var PREFS_UPDATED_KEY = 'exodus40lite-prefs-updated-at';
   var API_BASE = './api';
-  var LENT_START = '2026-02-18';
-  var LENT_END = '2026-04-04';
+
+  // Liturgical seasons – contiguous, no gaps
+  var SEASONS = [
+    { id: 'advent',    name: 'Advent',        start: '2025-11-30', end: '2025-12-24' },
+    { id: 'christmas', name: 'Christmas',     start: '2025-12-25', end: '2026-01-11' },
+    { id: 'ordinary',  name: 'Ordinary Time', start: '2026-01-12', end: '2026-02-17' },
+    { id: 'lent',      name: 'Lent',          start: '2026-02-18', end: '2026-04-01' },
+    { id: 'triduum',   name: 'Triduum',       start: '2026-04-02', end: '2026-04-04' },
+    { id: 'easter',    name: 'Easter',        start: '2026-04-05', end: '2026-05-24' },
+    { id: 'ordinary',  name: 'Ordinary Time', start: '2026-05-25', end: '2026-11-28' },
+    { id: 'advent',    name: 'Advent',        start: '2026-11-29', end: '2026-12-24' },
+    { id: 'christmas', name: 'Christmas',     start: '2026-12-25', end: '2027-01-10' }
+  ];
+  var FIRST_DATE = SEASONS[0].start;
+  var LAST_DATE = SEASONS[SEASONS.length - 1].end;
 
   var CATEGORIES = [
     {
@@ -80,7 +93,7 @@
         { id: 'asceticism-desserts', label: 'No desserts or sweets', freq: 'daily' },
         { id: 'asceticism-music', label: 'Only music that lifts the soul to God', freq: 'daily' },
         { id: 'asceticism-purchases', label: 'No unnecessary purchases', freq: 'daily' },
-        { id: 'asceticism-coldshower', label: 'Take a cold shower', freq: 'daily', optional: true }
+        { id: 'asceticism-coldshower', label: 'Take a cold shower', freq: 'daily' }
       ]
     }
   ];
@@ -120,14 +133,28 @@
     return parseDate(str).getDay();
   }
 
-  function lentDayNumber(str) {
-    var start = parseDate(LENT_START);
-    var cur = parseDate(str);
-    return Math.round((cur - start) / 864e5) + 1;
+  function currentSeason(dateStr) {
+    for (var i = 0; i < SEASONS.length; i++) {
+      if (dateStr >= SEASONS[i].start && dateStr <= SEASONS[i].end) return SEASONS[i];
+    }
+    return null;
   }
 
-  function totalLentDays() {
-    return Math.round((parseDate(LENT_END) - parseDate(LENT_START)) / 864e5) + 1;
+  function isLentOrTriduum(dateStr) {
+    var s = currentSeason(dateStr);
+    return s && (s.id === 'lent' || s.id === 'triduum');
+  }
+
+  function seasonDayNumber(dateStr) {
+    var s = currentSeason(dateStr);
+    if (!s) return 0;
+    return Math.round((parseDate(dateStr) - parseDate(s.start)) / 864e5) + 1;
+  }
+
+  function totalSeasonDays(dateStr) {
+    var s = currentSeason(dateStr);
+    if (!s) return 0;
+    return Math.round((parseDate(s.end) - parseDate(s.start)) / 864e5) + 1;
   }
 
   function getWeekDates(str) {
@@ -137,7 +164,7 @@
     var dates = [];
     for (var i = 0; i < 7; i++) {
       var ds = toDateStr(d);
-      if (ds >= LENT_START && ds <= LENT_END) dates.push(ds);
+      if (ds >= FIRST_DATE && ds <= LAST_DATE) dates.push(ds);
       d.setDate(d.getDate() + 1);
     }
     return dates;
@@ -189,11 +216,13 @@
       case 'weekly':
         return true;
       case 'fasting':
+        if (!isLentOrTriduum(dateStr)) return false;
         if (dateStr === '2026-02-18') return true;
         if (dayOfWeek(dateStr) !== 5) return false;
         if (dateStr === '2026-02-20') return false;
         return true;
       case 'abstinence':
+        if (!isLentOrTriduum(dateStr)) return false;
         if (dateStr === '2026-02-18') return true;
         return dayOfWeek(dateStr) === 5;
       default:
@@ -459,21 +488,18 @@
     var isToday = (currentDate === todayStr());
 
     dateEl.textContent = formatDate(currentDate);
-    dayEl.textContent = 'Day ' + lentDayNumber(currentDate) + ' of ' + totalLentDays();
+    var season = currentSeason(currentDate);
+    if (season) {
+      dayEl.textContent = season.name + ' \u2013 Day ' + seasonDayNumber(currentDate) + ' of ' + totalSeasonDays(currentDate);
+    } else {
+      dayEl.textContent = '';
+    }
 
     var todayIndicator = document.getElementById('today-indicator');
     todayIndicator.hidden = !isToday;
     todayBtn.hidden = isToday;
-    prevBtn.disabled = (currentDate <= LENT_START);
-    nextBtn.disabled = (currentDate >= LENT_END);
-
-    var inLent = currentDate >= LENT_START && currentDate <= LENT_END;
-    if (!inLent) {
-      main.innerHTML = '';
-      main.appendChild(el('div', { className: 'message', textContent: 'This date is outside of Lent 2026.' }));
-      updateProgress(0, 0);
-      return;
-    }
+    prevBtn.disabled = (currentDate <= FIRST_DATE);
+    nextBtn.disabled = (currentDate >= LAST_DATE);
 
     main.innerHTML = '';
     var totalItems = 0;
@@ -534,13 +560,6 @@
     notesSection.appendChild(textarea);
     main.appendChild(notesSection);
 
-    main.appendChild(el('section', { className: 'day-intro' }, [
-      el('p', { className: 'day-intro-label', textContent: 'Editorial Ruleboard' }),
-      el('p', {
-        className: 'day-intro-copy',
-        textContent: 'Track the day with deliberate attention. Weekly disciplines carry their own cadence, and notes remain attached to this date.'
-      })
-    ]));
   }
 
   function buildItemRow(item, checked) {
@@ -1119,21 +1138,21 @@
   // ========== EVENT HANDLERS ==========
 
   document.getElementById('prev-day').addEventListener('click', function () {
-    if (currentDate > LENT_START) {
+    if (currentDate > FIRST_DATE) {
       currentDate = addDays(currentDate, -1);
       render();
     }
   });
 
   document.getElementById('next-day').addEventListener('click', function () {
-    if (currentDate < LENT_END) {
+    if (currentDate < LAST_DATE) {
       currentDate = addDays(currentDate, 1);
       render();
     }
   });
 
   document.getElementById('today-btn').addEventListener('click', function () {
-    currentDate = clampToLent(todayStr());
+    currentDate = clampToSeason(todayStr());
     render();
   });
 
@@ -1148,13 +1167,13 @@
 
   // ========== INIT ==========
 
-  function clampToLent(dateStr) {
-    if (dateStr < LENT_START) return LENT_START;
-    if (dateStr > LENT_END) return LENT_END;
+  function clampToSeason(dateStr) {
+    if (dateStr < FIRST_DATE) return FIRST_DATE;
+    if (dateStr > LAST_DATE) return LAST_DATE;
     return dateStr;
   }
 
-  currentDate = clampToLent(todayStr());
+  currentDate = clampToSeason(todayStr());
   render();
   renderSettingsUI();
   renderAccountUI();

@@ -1,4 +1,4 @@
-var CACHE_NAME = 'exodus40lite-v13';
+var CACHE_NAME = 'exodus40lite-v15';
 var ASSETS = [
   './',
   './index.html',

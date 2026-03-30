@@ -57,14 +57,14 @@ if ($user) {
         $mail->addAddress($username);
 
         $mail->isHTML(true);
-        $mail->Subject = 'Exodus 40 Lite - Password Reset';
+        $mail->Subject = 'Exodus - Password Reset';
         $mail->Body    = '<p>Hi,</p>'
-            . '<p>You requested a password reset for your Exodus 40 Lite account.</p>'
+            . '<p>You requested a password reset for your Exodus account.</p>'
             . '<p>Click the link below to set a new password (expires in 1 hour):</p>'
             . '<p><a href="' . htmlspecialchars($resetUrl) . '">' . htmlspecialchars($resetUrl) . '</a></p>'
             . '<p>If you didn\'t request this, you can safely ignore this email.</p>';
         $mail->AltBody = "Hi,\r\n\r\n"
-            . "You requested a password reset for your Exodus 40 Lite account.\r\n\r\n"
+            . "You requested a password reset for your Exodus account.\r\n\r\n"
             . "Click the link below to set a new password (expires in 1 hour):\r\n"
             . $resetUrl . "\r\n\r\n"
             . "If you didn't request this, you can safely ignore this email.\r\n";

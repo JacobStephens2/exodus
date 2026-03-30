@@ -102,7 +102,6 @@ footer {
 
 .hero-kicker,
 .progress-label,
-.day-intro-label,
 .category-header h2,
 .category-meta,
 .weekly-badge,
@@ -271,7 +270,6 @@ main {
 }
 
 .category,
-.day-intro,
 .notes-section,
 .settings-panel,
 .account-form-container,
@@ -433,41 +431,6 @@ main {
 
 .item-details p + p {
   margin-top: var(--space-2);
-}
-
-.day-intro {
-  padding: var(--space-8);
-  border-radius: var(--radius-lg);
-  background: #2e2a31;
-  color: #f4efee;
-  position: relative;
-  overflow: hidden;
-}
-
-.day-intro::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06) 0.12rem, transparent 0.12rem),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.04), transparent 55%);
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.day-intro-label {
-  position: relative;
-  color: rgba(244, 239, 238, 0.64);
-}
-
-.day-intro-copy {
-  position: relative;
-  margin-top: var(--space-3);
-  font-family: 'Noto Serif', serif;
-  font-size: 1.5rem;
-  line-height: 1.55;
-  font-style: italic;
-  max-width: 30ch;
 }
 
 .message {
@@ -784,14 +747,6 @@ footer a {
   .item-hint,
   .item-details {
     font-size: 0.74rem;
-  }
-
-  .day-intro {
-    padding: var(--space-5);
-  }
-
-  .day-intro-copy {
-    font-size: 1.22rem;
   }
 
   .settings-panel,
