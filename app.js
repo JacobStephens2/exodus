@@ -652,9 +652,11 @@
   function updateProgress(checked, total) {
     var fill = document.getElementById('progress-fill');
     var text = document.getElementById('progress-text');
-    var pct = total > 0 ? (checked / total) * 100 : 0;
-    fill.style.setProperty('--progress', pct + '%');
-    text.textContent = checked + ' / ' + total;
+    var pct = total > 0 ? checked / total : 0;
+    var circumference = 2 * Math.PI * 15.5;
+    fill.style.strokeDasharray = circumference;
+    fill.style.strokeDashoffset = circumference * (1 - pct);
+    text.textContent = checked + ' / ' + total + ' disciplines';
   }
 
   function defaultItemHint(item) {
@@ -668,7 +670,7 @@
       case 'abstinence':
         return 'Friday abstinence';
       default:
-        return 'Daily discipline';
+        return '';
     }
   }
 

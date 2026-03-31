@@ -35,9 +35,6 @@
     <header class="hero">
       <div class="hero-copy">
         <p class="hero-kicker">Exodus</p>
-        <div class="header-top">
-          <h1>Rule of Life</h1>
-        </div>
       </div>
       <div class="hero-panel">
         <nav class="date-nav" aria-label="Date navigation">
@@ -53,13 +50,11 @@
           <button id="today-btn" hidden>Return to Today</button>
         </div>
         <div class="progress">
-          <div class="progress-ring">
-            <div id="progress-fill" class="progress-fill" aria-hidden="true"></div>
-            <div class="progress-copy">
-              <span id="progress-text"></span>
-              <span class="progress-label">Disciplines</span>
-            </div>
-          </div>
+          <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+            <circle class="progress-ring-bg" cx="18" cy="18" r="15.5" />
+            <circle id="progress-fill" class="progress-ring-fill" cx="18" cy="18" r="15.5" />
+          </svg>
+          <span id="progress-text" class="progress-text"></span>
         </div>
       </div>
     </header>

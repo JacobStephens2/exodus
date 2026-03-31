@@ -96,12 +96,11 @@ footer {
   align-items: baseline;
   justify-content: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-4);
   color: var(--text-soft);
 }
 
 .hero-kicker,
-.progress-label,
 .category-header h2,
 .category-meta,
 .weekly-badge,
@@ -184,10 +183,10 @@ footer {
 
 #lent-day {
   font-family: 'Noto Serif', serif;
-  font-size: clamp(2rem, 6vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  font-size: clamp(1.05rem, 3.5vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 
 .today-indicator {
@@ -219,54 +218,42 @@ footer {
 }
 
 .progress {
-  display: grid;
-  place-items: center;
-  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .progress-ring {
-  position: relative;
-  width: 7.5rem;
-  height: 7.5rem;
-  border-radius: 999px;
+  width: 1.6rem;
+  height: 1.6rem;
+  transform: rotate(-90deg);
 }
 
-.progress-fill {
-  --progress: 0%;
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background:
-    conic-gradient(from -90deg, var(--secondary) 0 var(--progress), #dfd9d3 var(--progress) 100%);
-  -webkit-mask: radial-gradient(circle, transparent 66%, #000 67%);
-  mask: radial-gradient(circle, transparent 66%, #000 67%);
+.progress-ring-bg {
+  fill: none;
+  stroke: #dfd9d3;
+  stroke-width: 3.5;
 }
 
-.progress-copy {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 0.15rem;
-  text-align: center;
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
-#progress-text {
-  font-family: 'Noto Serif', serif;
-  font-size: 1.6rem;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.progress-label {
+.progress-text {
+  font-size: 0.72rem;
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 main {
   display: grid;
-  gap: var(--space-12);
-  margin-top: var(--space-10);
+  gap: var(--space-10);
+  margin-top: var(--space-6);
 }
 
 .category,
@@ -684,8 +671,7 @@ footer a {
   }
 
   .hero-copy {
-    justify-content: flex-start;
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-3);
   }
 
   .header-top h1 {
@@ -707,26 +693,9 @@ footer a {
     font-size: 0.63rem;
   }
 
-  #lent-day {
-    font-size: 2.05rem;
-  }
-
-  .progress-ring {
-    width: 6rem;
-    height: 6rem;
-  }
-
-  #progress-text {
-    font-size: 1.35rem;
-  }
-
-  .progress-label {
-    font-size: 0.5rem;
-  }
-
   main {
-    gap: var(--space-10);
-    margin-top: var(--space-8);
+    gap: var(--space-8);
+    margin-top: var(--space-5);
   }
 
   .category-header {
