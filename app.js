@@ -31,7 +31,7 @@
       name: 'Prayer',
       icon: '\u{1F64F}',
       items: [
-        { id: 'prayer-readings', label: 'Read the Mass readings and Psalm', freq: 'daily' },
+        { id: 'prayer-readings', label: 'Read Mass readings', freq: 'daily' },
         { id: 'prayer-holyhour', label: 'Make a holy half hour', freq: 'daily' },
         { id: 'prayer-lordsday', label: "Celebrate the Lord\u2019s Day by relaxing one discipline", freq: 'sunday' }
       ]
@@ -131,6 +131,11 @@
 
   function dayOfWeek(str) {
     return parseDate(str).getDay();
+  }
+
+  function readingsUrl(dateStr) {
+    var p = dateStr.split('-');
+    return 'https://bible.usccb.org/bible/readings/' + p[1] + p[2] + p[0].slice(2) + '.cfm';
   }
 
   function currentSeason(dateStr) {
@@ -587,6 +592,17 @@
     var hintText = item.hint || defaultItemHint(item);
     if (hintText) {
       textDiv.appendChild(el('span', { className: 'item-hint', textContent: hintText }));
+    }
+
+    if (item.id === 'prayer-readings') {
+      var link = el('a', {
+        className: 'readings-link',
+        href: readingsUrl(currentDate),
+        textContent: 'Open today\u2019s readings \u2197',
+        target: '_blank',
+        rel: 'noopener'
+      });
+      textDiv.appendChild(link);
     }
 
     if (item.freq === 'weekly') {
