@@ -8,3 +8,17 @@ android-twa/*.aab
 android-twa/build/
 android-twa/app/build/
 android-twa/.gradle/
+
+# Node / Capacitor
+node_modules/
+www/
+
+# Android (Capacitor)
+android/keystore.properties
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/.idea/
+android/*.iml

@@ -1,0 +1,14 @@
+{
+  "appId": "page.stephens.exodus40lite",
+  "appName": "Exodus",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#2D1B4E"
+    }
+  }
+}
