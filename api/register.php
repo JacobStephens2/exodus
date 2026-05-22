@@ -1,5 +1,9 @@
 <?php
 require __DIR__ . '/config.php';
+require __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+
 cors();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -59,6 +63,28 @@ if ($prefsJson !== false) {
         'INSERT INTO user_prefs (user_id, prefs_json, updated_at) VALUES (?, ?, ?)'
     );
     $stmt->execute([$userId, $prefsJson, $prefsUpdatedAt]);
+}
+
+try {
+    $mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host       = SMTP_HOST;
+    $mail->SMTPAuth   = true;
+    $mail->Username   = SMTP_USER;
+    $mail->Password   = SMTP_PASS;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = SMTP_PORT;
+    $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+    $mail->addAddress('jacob@stephens.page');
+    $mail->Subject = 'Exodus 40 Lite — New Account Created';
+    $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? 'unknown', 0, 1024);
+    $mail->Body = "A new account was created on Exodus 40 Lite.\n\n"
+        . "Email: " . $username . "\n"
+        . "Date: " . gmdate('c') . "\n"
+        . "Device: " . $ua;
+    $mail->send();
+} catch (\Throwable $e) {
+    error_log('Failed to send admin signup notification: ' . $e->getMessage());
 }
 
 jsonResponse(['token' => $token, 'username' => $username]);
