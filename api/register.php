@@ -67,6 +67,7 @@ if ($prefsJson !== false) {
 
 try {
     $mail = new PHPMailer(true);
+    $mail->CharSet    = 'UTF-8';
     $mail->isSMTP();
     $mail->Host       = SMTP_HOST;
     $mail->SMTPAuth   = true;
