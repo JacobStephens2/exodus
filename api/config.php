@@ -73,3 +73,27 @@ function ensureUserPrefsTable() {
 
     $ready = true;
 }
+
+function ensureAnchorTables() {
+    static $ready = false;
+    if ($ready) return;
+
+    $db = getDB();
+    $db->exec(
+        'CREATE TABLE IF NOT EXISTS anchor_invites (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            from_user_id INT UNSIGNED NOT NULL,
+            to_user_id INT UNSIGNED NOT NULL,
+            status ENUM("pending","accepted") NOT NULL DEFAULT "pending",
+            created_at BIGINT NOT NULL DEFAULT 0,
+            responded_at BIGINT NULL DEFAULT NULL,
+            UNIQUE KEY uniq_directed_pair (from_user_id, to_user_id),
+            KEY idx_to_status (to_user_id, status),
+            KEY idx_from_status (from_user_id, status),
+            FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB'
+    );
+
+    $ready = true;
+}
