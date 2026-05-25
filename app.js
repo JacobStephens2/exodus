@@ -203,16 +203,18 @@
     syncPrefsToServer(updatedAt);
   }
 
-  function isItemEnabled(itemId, item) {
-    var prefs = loadPrefs();
-    if (prefs.hasOwnProperty(itemId)) return prefs[itemId];
+  function isItemEnabledFor(prefs, item) {
+    if (prefs.hasOwnProperty(item.id)) return prefs[item.id];
     return !item.optional;
+  }
+
+  function isItemEnabled(itemId, item) {
+    return isItemEnabledFor(loadPrefs(), item);
   }
 
   // ========== ITEM VISIBILITY ==========
 
-  function shouldShow(item, dateStr) {
-    if (!isItemEnabled(item.id, item)) return false;
+  function freqApplies(item, dateStr) {
     switch (item.freq) {
       case 'daily':
         return true;
@@ -233,6 +235,10 @@
       default:
         return true;
     }
+  }
+
+  function shouldShow(item, dateStr) {
+    return isItemEnabled(item.id, item) && freqApplies(item, dateStr);
   }
 
   // ========== AUTH ==========
@@ -715,6 +721,7 @@
         apiRequest('logout.php', { method: 'POST' });
         clearAuth();
         renderAccountUI();
+        renderAnchorsUI();
       });
       container.appendChild(info);
       container.appendChild(signOutBtn);
@@ -842,6 +849,7 @@
           syncFromServer().then(function () {
             render();
             renderAccountUI();
+            renderAnchorsUI();
           });
         })
         .catch(function () {
@@ -1153,6 +1161,295 @@
     container.appendChild(panel);
   }
 
+  // ========== ANCHORS UI ==========
+
+  function renderAnchorsUI() {
+    var container = document.getElementById('anchors-section');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!isLoggedIn()) {
+      return;
+    }
+
+    var toggleLink = el('button', {
+      className: 'settings-toggle anchors-toggle',
+      type: 'button'
+    });
+    var toggleLabel = el('span', { textContent: 'Anchor accountability' });
+    var badge = el('span', { className: 'anchors-badge', hidden: true });
+    toggleLink.appendChild(toggleLabel);
+    toggleLink.appendChild(badge);
+
+    var panel = el('div', { className: 'settings-panel anchors-panel', hidden: true });
+
+    toggleLink.addEventListener('click', function () {
+      panel.hidden = !panel.hidden;
+      toggleLabel.textContent = panel.hidden ? 'Anchor accountability' : 'Done';
+      if (!panel.hidden) {
+        refreshAnchors(panel, badge, toggleLabel);
+      }
+    });
+
+    container.appendChild(toggleLink);
+    container.appendChild(panel);
+
+    // Always fetch once on render so the badge reflects pending invites
+    // even before the user opens the panel.
+    fetchAnchors().then(function (result) {
+      updateBadge(badge, result);
+    });
+  }
+
+  function updateBadge(badge, result) {
+    if (!badge) return;
+    var incoming = (result && result.incoming) ? result.incoming.length : 0;
+    if (incoming > 0) {
+      badge.textContent = String(incoming);
+      badge.hidden = false;
+    } else {
+      badge.textContent = '';
+      badge.hidden = true;
+    }
+  }
+
+  function fetchAnchors() {
+    return apiRequest('anchors.php', { method: 'GET' });
+  }
+
+  function refreshAnchors(panel, badge, toggleLabel) {
+    panel.innerHTML = '';
+    panel.appendChild(el('div', { className: 'anchors-loading', textContent: 'Loading…' }));
+
+    fetchAnchors().then(function (result) {
+      panel.innerHTML = '';
+      if (!result) {
+        panel.appendChild(el('div', { className: 'account-error', textContent: 'Could not load anchors.' }));
+        return;
+      }
+      updateBadge(badge, result);
+
+      if (result.incoming && result.incoming.length > 0) {
+        var incSection = el('div', { className: 'anchors-section-block' });
+        incSection.appendChild(el('div', { className: 'settings-category-header', textContent: 'Invites for you' }));
+        for (var i = 0; i < result.incoming.length; i++) {
+          incSection.appendChild(buildIncomingRow(result.incoming[i], panel, badge, toggleLabel));
+        }
+        panel.appendChild(incSection);
+      }
+
+      if (result.pairs && result.pairs.length > 0) {
+        var pairsSection = el('div', { className: 'anchors-section-block' });
+        pairsSection.appendChild(el('div', { className: 'settings-category-header', textContent: 'Your anchors' }));
+        for (var j = 0; j < result.pairs.length; j++) {
+          pairsSection.appendChild(buildAnchorCard(result.pairs[j], panel, badge, toggleLabel));
+        }
+        panel.appendChild(pairsSection);
+      } else if (!result.incoming || result.incoming.length === 0) {
+        panel.appendChild(el('p', {
+          className: 'anchors-empty',
+          textContent: 'You don’t have any anchors yet. Invite a brother below.'
+        }));
+      }
+
+      if (result.outgoing && result.outgoing.length > 0) {
+        var outSection = el('div', { className: 'anchors-section-block' });
+        outSection.appendChild(el('div', { className: 'settings-category-header', textContent: 'Pending invites you sent' }));
+        for (var k = 0; k < result.outgoing.length; k++) {
+          outSection.appendChild(buildOutgoingRow(result.outgoing[k], panel, badge, toggleLabel));
+        }
+        panel.appendChild(outSection);
+      }
+
+      panel.appendChild(buildInviteForm(panel, badge, toggleLabel));
+    });
+  }
+
+  function buildAnchorCard(pair, panel, badge, toggleLabel) {
+    var card = el('div', { className: 'anchor-card' });
+
+    var prefs = (pair.prefs && typeof pair.prefs === 'object') ? pair.prefs : {};
+    var dateStr = pair.today.date_str;
+    var anchorItems = (pair.today.items && typeof pair.today.items === 'object') ? pair.today.items : {};
+
+    var totalItems = 0;
+    var checkedItems = 0;
+    var categoryNodes = [];
+
+    for (var c = 0; c < CATEGORIES.length; c++) {
+      var cat = CATEGORIES[c];
+      var visible = [];
+      for (var j = 0; j < cat.items.length; j++) {
+        var item = cat.items[j];
+        if (!isItemEnabledFor(prefs, item)) continue;
+        if (!freqApplies(item, dateStr)) continue;
+        visible.push(item);
+      }
+      if (visible.length === 0) continue;
+
+      var catSection = el('div', { className: 'anchor-category' });
+      catSection.appendChild(el('div', { className: 'anchor-category-header' }, [
+        el('span', { className: 'anchor-category-icon', textContent: cat.icon }),
+        el('span', { className: 'anchor-category-name', textContent: cat.name })
+      ]));
+
+      for (var k = 0; k < visible.length; k++) {
+        var it = visible[k];
+        var checked = !!anchorItems[it.id];
+        if (checked) checkedItems++;
+        totalItems++;
+        var row = el('div', { className: 'anchor-item' + (checked ? ' checked' : '') }, [
+          el('span', { className: 'anchor-check', textContent: checked ? '✓' : '·' }),
+          el('span', { className: 'anchor-item-label', textContent: it.label })
+        ]);
+        catSection.appendChild(row);
+      }
+      categoryNodes.push(catSection);
+    }
+
+    var header = el('div', { className: 'anchor-card-header' }, [
+      el('strong', { className: 'anchor-username', textContent: pair.username }),
+      el('span', { className: 'anchor-card-meta', textContent: checkedItems + ' / ' + totalItems + ' today' })
+    ]);
+    card.appendChild(header);
+
+    var subHeader = el('div', { className: 'anchor-card-subheader', textContent: formatDate(dateStr) });
+    card.appendChild(subHeader);
+
+    if (totalItems === 0) {
+      card.appendChild(el('p', { className: 'anchors-empty', textContent: 'No disciplines configured for today.' }));
+    } else {
+      for (var n = 0; n < categoryNodes.length; n++) {
+        card.appendChild(categoryNodes[n]);
+      }
+    }
+
+    var actions = el('div', { className: 'anchor-card-actions' });
+    var refreshBtn = el('button', { className: 'account-switch', type: 'button', textContent: 'Refresh' });
+    refreshBtn.addEventListener('click', function () { refreshAnchors(panel, badge, toggleLabel); });
+    var removeBtn = el('button', { className: 'account-switch anchor-remove-btn', type: 'button', textContent: 'Remove' });
+    removeBtn.addEventListener('click', function () {
+      if (!confirm('Remove ' + pair.username + ' as an anchor? Neither of you will see each other’s progress anymore.')) return;
+      apiRequest('anchors.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'remove', pair_id: pair.pair_id })
+      }).then(function () { refreshAnchors(panel, badge, toggleLabel); });
+    });
+    actions.appendChild(refreshBtn);
+    actions.appendChild(removeBtn);
+    card.appendChild(actions);
+
+    return card;
+  }
+
+  function buildIncomingRow(inv, panel, badge, toggleLabel) {
+    var row = el('div', { className: 'anchor-invite-row' });
+    row.appendChild(el('div', { className: 'anchor-invite-label' }, [
+      el('strong', { textContent: inv.from_username }),
+      el('span', { className: 'anchor-invite-sub', textContent: 'wants you as an anchor' })
+    ]));
+    var actions = el('div', { className: 'anchor-invite-actions' });
+    var acceptBtn = el('button', { className: 'account-btn anchor-mini-btn', type: 'button', textContent: 'Accept' });
+    var declineBtn = el('button', { className: 'account-switch', type: 'button', textContent: 'Decline' });
+    acceptBtn.addEventListener('click', function () {
+      acceptBtn.disabled = true;
+      apiRequest('anchors.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'accept', invite_id: inv.id })
+      }).then(function () { refreshAnchors(panel, badge, toggleLabel); });
+    });
+    declineBtn.addEventListener('click', function () {
+      declineBtn.disabled = true;
+      apiRequest('anchors.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'decline', invite_id: inv.id })
+      }).then(function () { refreshAnchors(panel, badge, toggleLabel); });
+    });
+    actions.appendChild(acceptBtn);
+    actions.appendChild(declineBtn);
+    row.appendChild(actions);
+    return row;
+  }
+
+  function buildOutgoingRow(inv, panel, badge, toggleLabel) {
+    var row = el('div', { className: 'anchor-invite-row' });
+    row.appendChild(el('div', { className: 'anchor-invite-label' }, [
+      el('strong', { textContent: inv.to_username }),
+      el('span', { className: 'anchor-invite-sub', textContent: 'awaiting their acceptance' })
+    ]));
+    var cancelBtn = el('button', { className: 'account-switch', type: 'button', textContent: 'Cancel' });
+    cancelBtn.addEventListener('click', function () {
+      cancelBtn.disabled = true;
+      apiRequest('anchors.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'cancel', invite_id: inv.id })
+      }).then(function () { refreshAnchors(panel, badge, toggleLabel); });
+    });
+    row.appendChild(cancelBtn);
+    return row;
+  }
+
+  function buildInviteForm(panel, badge, toggleLabel) {
+    var wrapper = el('div', { className: 'anchor-invite-form' });
+    wrapper.appendChild(el('div', { className: 'settings-category-header', textContent: 'Invite someone' }));
+    var errorMsg = el('div', { className: 'account-error', hidden: true });
+    var successMsg = el('div', { className: 'account-success', hidden: true });
+    var emailInput = el('input', {
+      type: 'email',
+      className: 'account-input',
+      placeholder: 'Their email address',
+      autocomplete: 'email'
+    });
+    var submitBtn = el('button', { className: 'account-btn', type: 'button', textContent: 'Send invite' });
+
+    function send() {
+      var email = emailInput.value.trim();
+      errorMsg.hidden = true;
+      successMsg.hidden = true;
+      if (!email || email.indexOf('@') === -1) {
+        errorMsg.textContent = 'Enter a valid email address.';
+        errorMsg.hidden = false;
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      apiRequest('anchors.php', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'invite', to_email: email })
+      }).then(function (r) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send invite';
+        if (!r) {
+          errorMsg.textContent = 'Network error. Try again.';
+          errorMsg.hidden = false;
+          return;
+        }
+        if (r.error) {
+          errorMsg.textContent = r.error;
+          errorMsg.hidden = false;
+          return;
+        }
+        emailInput.value = '';
+        successMsg.textContent = r.accepted_existing
+          ? 'Anchor added — they had already invited you.'
+          : 'Invite sent. They’ll see it next time they open the app.';
+        successMsg.hidden = false;
+        refreshAnchors(panel, badge, toggleLabel);
+      });
+    }
+
+    submitBtn.addEventListener('click', send);
+    emailInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') send();
+    });
+
+    wrapper.appendChild(errorMsg);
+    wrapper.appendChild(successMsg);
+    wrapper.appendChild(emailInput);
+    wrapper.appendChild(submitBtn);
+    return wrapper;
+  }
+
   // ========== EVENT HANDLERS ==========
 
   document.getElementById('prev-day').addEventListener('click', function () {
@@ -1195,6 +1492,7 @@
   render();
   renderSettingsUI();
   renderAccountUI();
+  renderAnchorsUI();
   checkResetToken();
 
   if (isLoggedIn()) {

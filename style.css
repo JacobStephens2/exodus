@@ -81,6 +81,7 @@ a {
 .hero,
 main,
 .settings-section-wrapper,
+.anchors-section-wrapper,
 .account-section-wrapper,
 footer {
   position: relative;
@@ -483,6 +484,7 @@ main {
 }
 
 .settings-section-wrapper,
+.anchors-section-wrapper,
 .account-section-wrapper {
   margin-top: var(--space-10);
 }
@@ -654,6 +656,199 @@ main {
   color: var(--primary);
 }
 
+.anchors-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.anchors-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--secondary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.anchors-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.anchors-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.anchors-loading,
+.anchors-empty {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.anchor-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-soft);
+}
+
+.anchor-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.anchor-username {
+  font-family: 'Noto Serif', serif;
+  font-size: 1.02rem;
+  word-break: break-all;
+}
+
+.anchor-card-meta {
+  color: var(--secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.anchor-card-subheader {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.anchor-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.anchor-category + .anchor-category {
+  margin-top: var(--space-2);
+}
+
+.anchor-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.anchor-category-icon {
+  font-size: 0.95rem;
+}
+
+.anchor-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.25rem 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.anchor-item.checked {
+  color: var(--text);
+}
+
+.anchor-check {
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 0.12rem;
+}
+
+.anchor-item.checked .anchor-check {
+  background: var(--secondary);
+  color: #fff;
+}
+
+.anchor-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.anchor-remove-btn {
+  color: #8b2d2d;
+}
+
+.anchor-invite-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.75rem var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.anchor-invite-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.anchor-invite-label strong {
+  word-break: break-all;
+}
+
+.anchor-invite-sub {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.anchor-invite-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.anchor-mini-btn {
+  width: auto;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.85rem;
+}
+
+.anchor-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 footer {
   padding-top: var(--space-10);
   color: var(--text-muted);
@@ -734,5 +929,20 @@ footer a {
   .settings-panel,
   .account-form-container {
     padding: var(--space-5);
+  }
+
+  .anchor-invite-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .anchor-invite-actions {
+    width: 100%;
+  }
+
+  .anchor-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
 }
