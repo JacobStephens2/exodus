@@ -1,14 +1,35 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'exodus40lite-data';
-  var NOTES_KEY = 'exodus40lite-notes';
-  var TIMESTAMPS_KEY = 'exodus40lite-timestamps';
-  var TOKEN_KEY = 'exodus40lite-token';
-  var USERNAME_KEY = 'exodus40lite-username';
-  var PREFS_KEY = 'exodus40lite-prefs';
-  var PREFS_UPDATED_KEY = 'exodus40lite-prefs-updated-at';
+  var STORAGE_KEY = 'horarium-data';
+  var NOTES_KEY = 'horarium-notes';
+  var TIMESTAMPS_KEY = 'horarium-timestamps';
+  var TOKEN_KEY = 'horarium-token';
+  var USERNAME_KEY = 'horarium-username';
+  var PREFS_KEY = 'horarium-prefs';
+  var PREFS_UPDATED_KEY = 'horarium-prefs-updated-at';
   var API_BASE = './api';
+
+  // One-time migration from pre-rename (Exodus 40 Lite) localStorage keys
+  (function migrateStorageKeys() {
+    var legacy = [
+      ['exodus40lite-data', STORAGE_KEY],
+      ['exodus40lite-notes', NOTES_KEY],
+      ['exodus40lite-timestamps', TIMESTAMPS_KEY],
+      ['exodus40lite-token', TOKEN_KEY],
+      ['exodus40lite-username', USERNAME_KEY],
+      ['exodus40lite-prefs', PREFS_KEY],
+      ['exodus40lite-prefs-updated-at', PREFS_UPDATED_KEY]
+    ];
+    for (var i = 0; i < legacy.length; i++) {
+      var oldKey = legacy[i][0];
+      var newKey = legacy[i][1];
+      if (localStorage.getItem(newKey) === null) {
+        var val = localStorage.getItem(oldKey);
+        if (val !== null) localStorage.setItem(newKey, val);
+      }
+    }
+  })();
 
   // Liturgical seasons – contiguous, no gaps
   var SEASONS = [
@@ -68,7 +89,7 @@
       name: 'Fraternity',
       icon: '\u{1FAC2}',
       items: [
-        { id: 'fraternity-anchor', label: 'Anchor check-in', freq: 'daily' },
+        { id: 'fraternity-anchor', label: 'Brother check-in', freq: 'daily' },
         { id: 'fraternity-meeting', label: 'Fraternity meeting with the group', freq: 'sunday' }
       ]
     },
@@ -1176,7 +1197,7 @@
       className: 'settings-toggle anchors-toggle',
       type: 'button'
     });
-    var toggleLabel = el('span', { textContent: 'Anchor accountability' });
+    var toggleLabel = el('span', { textContent: 'Brother accountability' });
     var badge = el('span', { className: 'anchors-badge', hidden: true });
     toggleLink.appendChild(toggleLabel);
     toggleLink.appendChild(badge);
@@ -1185,7 +1206,7 @@
 
     toggleLink.addEventListener('click', function () {
       panel.hidden = !panel.hidden;
-      toggleLabel.textContent = panel.hidden ? 'Anchor accountability' : 'Done';
+      toggleLabel.textContent = panel.hidden ? 'Brother accountability' : 'Done';
       if (!panel.hidden) {
         refreshAnchors(panel, badge, toggleLabel);
       }
@@ -1224,7 +1245,7 @@
     fetchAnchors().then(function (result) {
       panel.innerHTML = '';
       if (!result) {
-        panel.appendChild(el('div', { className: 'account-error', textContent: 'Could not load anchors.' }));
+        panel.appendChild(el('div', { className: 'account-error', textContent: 'Could not load brothers.' }));
         return;
       }
       updateBadge(badge, result);
@@ -1240,7 +1261,7 @@
 
       if (result.pairs && result.pairs.length > 0) {
         var pairsSection = el('div', { className: 'anchors-section-block' });
-        pairsSection.appendChild(el('div', { className: 'settings-category-header', textContent: 'Your anchors' }));
+        pairsSection.appendChild(el('div', { className: 'settings-category-header', textContent: 'Your brothers' }));
         for (var j = 0; j < result.pairs.length; j++) {
           pairsSection.appendChild(buildAnchorCard(result.pairs[j], panel, badge, toggleLabel));
         }
@@ -1248,7 +1269,7 @@
       } else if (!result.incoming || result.incoming.length === 0) {
         panel.appendChild(el('p', {
           className: 'anchors-empty',
-          textContent: 'You don’t have any anchors yet. Invite a brother below.'
+          textContent: 'You don’t have any brothers yet. Invite a brother below.'
         }));
       }
 
@@ -1329,7 +1350,7 @@
     refreshBtn.addEventListener('click', function () { refreshAnchors(panel, badge, toggleLabel); });
     var removeBtn = el('button', { className: 'account-switch anchor-remove-btn', type: 'button', textContent: 'Remove' });
     removeBtn.addEventListener('click', function () {
-      if (!confirm('Remove ' + pair.username + ' as an anchor? Neither of you will see each other’s progress anymore.')) return;
+      if (!confirm('Remove ' + pair.username + ' as a brother? Neither of you will see each other’s progress anymore.')) return;
       apiRequest('anchors.php', {
         method: 'POST',
         body: JSON.stringify({ action: 'remove', pair_id: pair.pair_id })
@@ -1346,7 +1367,7 @@
     var row = el('div', { className: 'anchor-invite-row' });
     row.appendChild(el('div', { className: 'anchor-invite-label' }, [
       el('strong', { textContent: inv.from_username }),
-      el('span', { className: 'anchor-invite-sub', textContent: 'wants you as an anchor' })
+      el('span', { className: 'anchor-invite-sub', textContent: 'wants you as a brother' })
     ]));
     var actions = el('div', { className: 'anchor-invite-actions' });
     var acceptBtn = el('button', { className: 'account-btn anchor-mini-btn', type: 'button', textContent: 'Accept' });
@@ -1431,7 +1452,7 @@
         }
         emailInput.value = '';
         successMsg.textContent = r.accepted_existing
-          ? 'Anchor added — they had already invited you.'
+          ? 'Brother added — they had already invited you.'
           : 'Invite sent. They’ll see it next time they open the app.';
         successMsg.hidden = false;
         refreshAnchors(panel, badge, toggleLabel);

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Exodus",
-  "short_name": "Exodus",
-  "description": "Rule of life tracker for the Good Wine Group",
+  "name": "Horarium — Rule of Life Tracker",
+  "short_name": "Horarium",
+  "description": "Track prayer, fasting, almsgiving, and discipline — every day, all year.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

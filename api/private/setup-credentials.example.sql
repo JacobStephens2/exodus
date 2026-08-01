@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS exodus40lite CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS horarium CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE USER IF NOT EXISTS 'exodus40lite'@'localhost' IDENTIFIED BY 'CHANGE_ME';
-GRANT ALL PRIVILEGES ON exodus40lite.* TO 'exodus40lite'@'localhost';
+CREATE USER IF NOT EXISTS 'horarium'@'localhost' IDENTIFIED BY 'CHANGE_ME';
+GRANT ALL PRIVILEGES ON horarium.* TO 'horarium'@'localhost';
 FLUSH PRIVILEGES;

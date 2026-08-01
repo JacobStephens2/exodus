@@ -77,9 +77,9 @@ try {
     $mail->Port       = SMTP_PORT;
     $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
     $mail->addAddress('jacob@stephens.page');
-    $mail->Subject = 'Exodus 40 Lite — New Account Created';
+    $mail->Subject = 'Horarium — New Account Created';
     $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? 'unknown', 0, 1024);
-    $mail->Body = "A new account was created on Exodus 40 Lite.\n\n"
+    $mail->Body = "A new account was created on Horarium.\n\n"
         . "Email: " . $username . "\n"
         . "Date: " . gmdate('c') . "\n"
         . "Device: " . $ua;

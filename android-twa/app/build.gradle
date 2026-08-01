@@ -5,11 +5,11 @@ plugins {
 }
 
 def twaManifest = [
-    applicationId: 'page.stephens.exodus40lite',
-    hostName: 'exodus40lite.stephens.page',
+    applicationId: 'us.horarium.app',
+    hostName: 'horarium.us',
     launchUrl: '/',
-    name: 'Exodus 40 Lite',
-    launcherName: 'Exodus 40',
+    name: 'Horarium — Rule of Life Tracker',
+    launcherName: 'Horarium',
     themeColor: '#2D1B4E',
     themeColorDark: '#1a1030',
     navigationColor: '#000000',
@@ -40,9 +40,9 @@ android {
         }
     }
     compileSdkVersion 36
-    namespace "page.stephens.exodus40lite"
+    namespace "us.horarium.app"
     defaultConfig {
-        applicationId "page.stephens.exodus40lite"
+        applicationId "us.horarium.app"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 1
@@ -54,8 +54,8 @@ android {
         def launchUrl = "https://" + twaManifest.hostName + twaManifest.launchUrl
         resValue "string", "launchUrl", launchUrl
 
-        resValue "string", "webManifestUrl", 'https://exodus40lite.stephens.page/manifest.json'
-        resValue "string", "fullScopeUrl", 'https://exodus40lite.stephens.page/'
+        resValue "string", "webManifestUrl", 'https://horarium.us/manifest.json'
+        resValue "string", "fullScopeUrl", 'https://horarium.us/'
 
         resValue "string", "hostName", twaManifest.hostName
         resValue "color", "colorPrimary", twaManifest.themeColor

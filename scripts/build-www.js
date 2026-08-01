@@ -8,7 +8,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, 'www');
-const REMOTE_API = 'https://exodus.stephens.page/api';
+const REMOTE_API = 'https://horarium.us/api';
 
 function rmrf(target) {
   if (!fs.existsSync(target)) return;

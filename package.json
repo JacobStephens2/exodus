@@ -1,9 +1,9 @@
 {
   "license": "MIT",
-  "name": "exodus40lite",
+  "name": "horarium",
   "version": "2.0.0",
   "private": true,
-  "description": "Capacitor Android wrapper for the Exodus rule-of-life tracker",
+  "description": "Capacitor Android wrapper for Horarium — Rule of Life Tracker",
   "scripts": {
     "build:www": "node scripts/build-www.js",
     "sync": "npm run build:www && cap sync android",

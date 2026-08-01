@@ -7,10 +7,10 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "page.stephens.exodus40lite"
+    namespace "us.horarium.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "page.stephens.exodus40lite"
+        applicationId "us.horarium.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2

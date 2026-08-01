@@ -6,10 +6,22 @@
     return;
   }
 
-  var PREF_ENABLED = 'exodus40lite-notif-enabled';
-  var PREF_TIME = 'exodus40lite-notif-time';
+  var PREF_ENABLED = 'horarium-notif-enabled';
+  var PREF_TIME = 'horarium-notif-time';
   var DEFAULT_TIME = '07:00';
   var NOTIFICATION_ID = 1;
+
+  // One-time migration from pre-rename localStorage keys
+  (function migrateNotifPrefs() {
+    if (localStorage.getItem(PREF_ENABLED) === null) {
+      var old = localStorage.getItem('exodus40lite-notif-enabled');
+      if (old !== null) localStorage.setItem(PREF_ENABLED, old);
+    }
+    if (localStorage.getItem(PREF_TIME) === null) {
+      var oldT = localStorage.getItem('exodus40lite-notif-time');
+      if (oldT !== null) localStorage.setItem(PREF_TIME, oldT);
+    }
+  })();
 
   function getLN() {
     return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
@@ -45,7 +57,7 @@
     await LN.schedule({
       notifications: [{
         id: NOTIFICATION_ID,
-        title: 'Exodus',
+        title: 'Horarium',
         body: 'Time for your rule of life today.',
         schedule: { on: { hour: t.hour, minute: t.minute }, allowWhileIdle: true },
         smallIcon: 'ic_stat_icon',

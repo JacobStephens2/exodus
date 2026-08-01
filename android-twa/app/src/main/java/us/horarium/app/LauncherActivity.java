@@ -1,4 +1,4 @@
-package page.stephens.exodus40lite;
+package us.horarium.app;
 
 import android.content.pm.ActivityInfo;
 import android.net.Uri;

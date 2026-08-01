@@ -1,4 +1,4 @@
-package page.stephens.exodus40lite;
+package us.horarium.app;
 
 public class DelegationService extends
         com.google.androidbrowserhelper.trusted.DelegationService {

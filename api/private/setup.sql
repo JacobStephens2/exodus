@@ -1,6 +1,6 @@
 -- Run setup-credentials.sql first to create the database and user.
 
-USE exodus40lite;
+USE horarium;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

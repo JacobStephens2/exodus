@@ -1,6 +1,6 @@
 {
-  "appId": "page.stephens.exodus40lite",
-  "appName": "Exodus",
+  "appId": "us.horarium.app",
+  "appName": "Horarium",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
